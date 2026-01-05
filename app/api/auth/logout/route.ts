@@ -6,6 +6,8 @@ export async function POST(req: Request) {
         const cookieStore = await cookies();
         const refreshToken = cookieStore.get('refreshToken')?.value;
         
+        if (!refreshToken) return Response.json({message: 'Unauthorized'}, {status: 401});
+
         const foundUser = await prisma.user.findFirst({
             where: { refresh_token: refreshToken },
         })

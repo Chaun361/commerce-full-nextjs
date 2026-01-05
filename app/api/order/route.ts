@@ -53,10 +53,17 @@ export async function POST(req: Request) {
 
             //decrese each product in stock based on cartItems
             for (const item of cart.cart_Items) {
-                await tx.product.update({
-                    where: { id: item.product_id },
+                const { count } = await tx.product.updateMany({
+                    where: { 
+                        id: item.product_id,
+                        inStock: { gte: item.quantity }
+                    },
                     data: { inStock: { decrement: item.quantity } }
                 });
+
+                if (count === 0) {
+                    throw new Error(`Stock no longer Available for ${item.product.name}`);
+                }
             }
 
             await tx.cartItem.deleteMany({

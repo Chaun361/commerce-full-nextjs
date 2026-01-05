@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
         const accessToken = await new SignJWT(payload)
             .setProtectedHeader({ alg: 'HS256' })
-            .setExpirationTime('5m')
+            .setExpirationTime('1h')
             .sign(accessKey);
         const refreshToken = await new SignJWT(payload)
             .setProtectedHeader({ alg: 'HS256' })
@@ -59,20 +59,12 @@ export async function POST(req: Request) {
             path: '/',
         })
 
-        const accessCookie = serialize('session', accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 60 * 5, // 15 Minutes (Sync with token exp)
-            path: '/',
-        });
-
         const headers = new Headers();
         
         headers.append('Set-Cookie', refreshCookie);
-        headers.append('Set-Cookie', accessCookie);
 
         return Response.json({
-            user: { email: email, role: foundUser.role }    
+            user: { email: email, role: foundUser.role, accessToken: accessToken }    
         }, 
         {
             headers: headers, 

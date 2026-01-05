@@ -33,7 +33,7 @@ const ProductList = () => {
   const categories = ["All", "Apple", "Headphone", "Laptop"];
 
   return (
-    <section className='flex flex-col px-4 md:px-12 lg:px-24 py-8 justify-between'>
+    <section className='flex flex-col max-w-7xl  mx-auto py-8 justify-between px-4 sm:px-6 lg:px-8 mb-50'>
       <h1 className='font-bold text-xl mb-6'>Available Products</h1>
       <div className='flex flex-wrap gap-3 mb-8'>
         {categories.map((category) => (
@@ -42,7 +42,7 @@ const ProductList = () => {
           </button>
         ))}
       </div>
-      <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+      <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6'>
         {content}
       </div>
     </section>

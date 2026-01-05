@@ -31,13 +31,13 @@ const ProductCard = ({product}: {product: Product}) => {
     router?.push(`/products/${product.slug}`);
   }
   return (
-    <div className='flex flex-col rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow h-80 bg-white'>
+    <div className='flex flex-col rounded-lg p-4 shadow-sm hover:shadow-md hover:cursor-pointer transition-shadow mx-auto h-70 bg-white 
+    w-40 md:w-50' onClick={onViewDetailsClick}>
         <div>
-          <img src={IMG_URL} alt={product.slug} className="w-48 h-40 object-cover rounded-md mb-4" />
+          <img src={IMG_URL} alt={product.slug} className="h-30 md:h-38 object-cover rounded-md mb-4 m-auto" />
           <h3 className="text-md font-normal">{productNameSub}</h3>
         </div>
         <p className="text-fuchsia-500 mb-0 my-auto font-semibold">฿{formatPrice}</p>
-        
     </div>
   )
 }

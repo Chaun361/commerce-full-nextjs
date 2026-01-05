@@ -1,36 +1,33 @@
 "use client"
 
-import { useEffect, useState, MouseEvent } from 'react'
+import { useState, MouseEvent } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import axios from '@/config/axios'
+import { useSelector } from 'react-redux'
+import { getAuthStatus, logout } from '@/lib/features/auth/authSlice'
+import { useAppDispatch } from '@/lib/store'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
+
   const pathname = usePathname()
   const router = useRouter()
 
-  const [isLogin, setIsLogin] = useState(false);
+  const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    setIsLogin(localStorage.getItem('isLogin') === 'true');
-  }, [pathname])
+  const loginStatus = useSelector(getAuthStatus); // 'idle' | 'loading' | 'succeeded' | 'failed'
 
-  const logout = async (event: MouseEvent) => {
+  const onLogout = async (event: MouseEvent) => {
     event.preventDefault();
-    localStorage.removeItem('isLogin');
-    setIsLogin(false);
-    await axios.post('/api/auth/logout')
-    router.push('/')
+    dispatch(logout());
+    router.push('/');
   }
 
-  const logoutMobile = async (event: MouseEvent) => {
+  const onLogoutMobile = async (event: MouseEvent) => {
     event.preventDefault();
-    localStorage.removeItem('isLogin');
-    setIsLogin(false);
     setIsOpen(false);
-    await axios.post('/api/auth/logout')
-    router.push('/')
+    dispatch(logout());
+    router.push('/');
   }
 
   // Define your application routes here.
@@ -87,9 +84,9 @@ const Navbar = () => {
             {/* Login Button (Desktop) */}
             <div className="hidden md:block">
                 {
-                    isLogin
+                    loginStatus === 'succeeded'
                     ? <button
-                        onClick={(e) => logout(e)}
+                        onClick={onLogout}
                         className="bg-transparent text-white border-2 border-zinc-400 hover:border-zinc-700 hover:cursor-pointer text-white px-3 py-1 rounded-sm text-sm font-medium transition-colors"
                     >
                         Logout
@@ -146,9 +143,9 @@ const Navbar = () => {
             ))}
 
             { 
-                isLogin 
+                loginStatus === 'succeeded' 
                 ? <button
-                    onClick={(e) => logoutMobile(e)}
+                    onClick={onLogoutMobile}
                     className="block w-full text-center mt-4 bg-transparent text-white border-2 border-zinc-400 hover:border-zinc-700 hover:cursor-pointer text-white px-4 py-2 rounded-md text-base font-medium"
                     >
                         Logout

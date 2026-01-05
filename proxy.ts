@@ -2,13 +2,13 @@ import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function proxy(request: NextRequest) {
-    const token = request.cookies.get('session')?.value;
-
-    const loginUrl = new URL('/login', request.url);
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : undefined;
     
-    if (!token) return NextResponse.redirect(loginUrl);
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     try {
+        
         const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
 
         const { payload } = await jwtVerify(token, secret);
@@ -17,13 +17,14 @@ export async function proxy(request: NextRequest) {
         response.headers.set('userId', payload.userId as string);
         return response;
     }
-    catch (error) {
-        return NextResponse.redirect(loginUrl);
+    catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 403 })
     }
 }
 
 export const config = {
     matcher: [
-        '/((?!api/auth|api/products|login|products|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.webp$).+)',
+        '/api/((?!auth|products).*)',
+        
     ]
 }

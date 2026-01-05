@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, createEntityAdapter } from "@reduxjs/toolkit";
-import axios from "@/config/axios";
+import { logout } from "../auth/authSlice";
+import { AxiosInstance } from "axios";
 
 type CartItem = {
     id: number,
@@ -20,10 +21,10 @@ const initialState = cartAdapter.getInitialState({
     error: null as any
 })
 
-export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, {rejectWithValue}) => {
+export const fetchCart = createAsyncThunk('cart/fetchCart', async (axiosPrivate: AxiosInstance, {rejectWithValue}) => {
     try {
-        const response = await axios.get('/api/cart/items');
-        return response.data.cart_items;
+        const response = await axiosPrivate.get('/api/cart/items');
+        return response.data.cart_items || [];
     }
     catch (error: any) {
         return rejectWithValue(error.message);
@@ -53,7 +54,17 @@ export const decreaseItem = createAsyncThunk('cart/decreaseItem', async (payload
 const cartSlice = createSlice({
     name: 'cart',
     initialState,
-    reducers: {},
+    reducers: {
+        updateItemQuantity: (state, action) => {
+            const item = state.entities[action.payload.itemId];
+            if (item) {
+                item.quantity = action.payload.quantity;
+            }
+        },
+        clearCart: (state) => {
+            cartAdapter.removeAll(state);
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchCart.pending, (state, action) => {
@@ -67,6 +78,11 @@ const cartSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload;   
             })
+            .addCase(logout.fulfilled, (state) => {
+                state.status = 'idle';
+                state.error = null;
+                cartAdapter.removeAll(state);
+            })
     }
 });
 
@@ -78,5 +94,7 @@ export const {
 
 export const getCartStatus = (state: { cart: typeof initialState }) => state.cart.status;
 export const getCartError = (state: { cart: typeof initialState }) => state.cart.error;
+
+export const { updateItemQuantity, clearCart } = cartSlice.actions;  
 
 export default cartSlice.reducer;
