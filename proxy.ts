@@ -1,4 +1,5 @@
 import { jwtVerify } from "jose";
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function proxy(request: NextRequest) {
@@ -13,12 +14,18 @@ export async function proxy(request: NextRequest) {
 
         const { payload } = await jwtVerify(token, secret);
 
-        const response = NextResponse.next();
-        response.headers.set('userId', payload.userId as string);
-        return response;
+        const requestHeaders = new Headers(request.headers);
+
+        requestHeaders.set('userId', payload.userId as string);
+
+        return NextResponse.next({
+            request: {
+                headers: requestHeaders,
+            }
+        });
     }
     catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 403 })
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 }
 

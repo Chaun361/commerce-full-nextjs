@@ -27,7 +27,7 @@ export async function GET(req: Request) {
             role: foundUser.role
         })
             .setProtectedHeader({ alg: 'HS256' })
-            .setExpirationTime('1h')
+            .setExpirationTime('10m')
             .sign(accessSecret);
         
         return Response.json({

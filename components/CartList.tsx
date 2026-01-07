@@ -64,7 +64,7 @@ const CartList = () => {
                     <span className="text-2xl font-bold text-gray-900">฿{formatTotalPrice}</span>
                 </div>
                 <button 
-                    className="bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 transition-colors font-semibold shadow-md shadow-indigo-200"
+                    className="bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 transition-colors font-semibold shadow-md shadow-indigo-200 hover:cursor-pointer"
                     onClick={onCheckOutClick}
                 >
                     Checkout
@@ -86,11 +86,13 @@ const CartList = () => {
     }
 
   return (
-    <section className='min-h-200'>
-        <h2 className='m-4 text-xl font-bold'>Your Cart</h2>
-        {content}
+    <section className='min-h-200 max-w-7xl mx-auto my-4 px-4 lg:px-8 lg:my-20'>
+        <h2 className='text-xl font-bold mb-10'>Your Cart</h2>
+        <div className='flex flex-col gap-4'>
+            {content}
+        </div>
     </section>
   )
 }
 
-export default CartList
+export default CartList;
