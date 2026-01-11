@@ -1,22 +1,16 @@
 "use client";
 
-import { MouseEventHandler, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { selectProductById, fetchProducts } from '../lib/features/products/productsSlicer';
-import { RootState, useAppDispatch } from '../lib/store';
-import AddItemToCart from '@/hooks/AddItemToCart';
+import UseAuth from '@/hooks/UseAuth';
+import UseCart from '@/hooks/UseCart';
+import useProducts from '@/hooks/useProducts';
+import { addItem } from '@/lib/actions/AddItem';
 
 const ProductDetails = ({slug}: {slug: string}) => {
-    
-    const dispatch = useAppDispatch();
-    const product = useSelector((state: RootState) => selectProductById(state, slug));
-    const addItemToCart = AddItemToCart();
+    const { products } = useProducts();
+    const product = products.find(p => p.slug === slug);
 
-    useEffect(() => {
-        if (!product) {
-            dispatch(fetchProducts());
-        }
-    }, [product, dispatch]);
+    const { auth } = UseAuth();
+    const { refreshCart } = UseCart();
 
     if (!product) return <p>Product not found</p>;
 
@@ -25,7 +19,14 @@ const ProductDetails = ({slug}: {slug: string}) => {
 
     const onAddButton = async () => {
       try {
-        await addItemToCart(product.id, 1);
+        if (!auth) throw new Error("Must login before add an item to the cart.");
+        await addItem({
+          userId: auth.userId,
+          product_id: product.id,
+          quantity: 1
+        });
+        await refreshCart();
+        alert(`Added 1 ${slug} to the cart`)
       }
       catch(error: any) {
         console.error(error);
@@ -65,8 +66,9 @@ const ProductDetails = ({slug}: {slug: string}) => {
             {product.details}
           </p>
           <button 
-            className='bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 transition-colors font-semibold shadow-md shadow-indigo-200 mt-30 w-full md:w-80 self-center hover:cursor-pointer'
+            className='bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 transition-all font-semibold shadow-md shadow-indigo-200 mt-30 w-full md:w-80 self-center hover:cursor-pointer disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none active:scale-95 outline-0'
             onClick={onAddButton}
+            disabled={product.inStock === 0}
           >
             Add to Cart
           </button>

@@ -2,18 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-type Product = {
-    id: number,
-    name: string,
-    slug: string,
-    details: string | null,
-    price: string,
-    inStock: number,
-    imageUrl: string | null,
-    isActive: boolean,
-    createdAt: string,
-    updatedAt: string
-}
+import { type Product } from '@/lib/actions/FetchProducts';
 
 const ProductCard = ({product}: {product: Product}) => {
   const IMG_URL = product.imageUrl ?? `/${product.slug}.jpg`;

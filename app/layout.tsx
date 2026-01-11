@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import StoreProvider from "./StoreProvider";
+import { ProductsProvider } from "./context/ProductProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "./context/AuthProvider";
+import { CartProvider } from "./context/CartProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,13 +27,17 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased flex flex-col min-h-screen`}
       >
-        <StoreProvider>
-          <Navbar></Navbar>
-          <main className="flex-grow bg-zinc-50">
-            {children}
-          </main>
-          <Footer />
-        </StoreProvider>
+        <ProductsProvider>
+          <AuthProvider>
+            <CartProvider>
+              <Navbar></Navbar>
+              <main className="flex-grow bg-zinc-50">
+                {children}
+              </main>
+              <Footer />
+            </CartProvider>
+          </AuthProvider>
+        </ProductsProvider>
       </body>
     </html>
   );

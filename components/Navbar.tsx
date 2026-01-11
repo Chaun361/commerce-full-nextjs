@@ -3,9 +3,8 @@
 import { useState, MouseEvent } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useSelector } from 'react-redux'
-import { getAuthStatus, logout } from '@/lib/features/auth/authSlice'
-import { useAppDispatch } from '@/lib/store'
+import UseAuth from '@/hooks/UseAuth'
+import { logout } from '@/lib/actions/Logout'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -13,20 +12,24 @@ const Navbar = () => {
   const pathname = usePathname()
   const router = useRouter()
 
-  const dispatch = useAppDispatch();
-
-  const loginStatus = useSelector(getAuthStatus); // 'idle' | 'loading' | 'succeeded' | 'failed'
+  const {auth, setAuth, setIsPersist} = UseAuth() 
 
   const onLogout = async (event: MouseEvent) => {
     event.preventDefault();
-    dispatch(logout());
+    await logout();
+    setAuth(null);
+    setIsPersist(false);
+    localStorage.setItem("persist", "false");
     router.push('/');
   }
 
   const onLogoutMobile = async (event: MouseEvent) => {
     event.preventDefault();
     setIsOpen(false);
-    dispatch(logout());
+    await logout();
+    setAuth(null);
+    setIsPersist(false);
+    localStorage.setItem("persist", "false");
     router.push('/');
   }
 
@@ -84,7 +87,7 @@ const Navbar = () => {
             {/* Login Button (Desktop) */}
             <div className="hidden md:block">
                 {
-                    loginStatus === 'succeeded'
+                    auth
                     ? <button
                         onClick={onLogout}
                         className="bg-transparent text-white border-2 border-zinc-400 hover:border-zinc-700 hover:cursor-pointer text-white px-3 py-1 rounded-sm text-sm font-medium transition-colors"
@@ -143,7 +146,7 @@ const Navbar = () => {
             ))}
 
             { 
-                loginStatus === 'succeeded' 
+                auth 
                 ? <button
                     onClick={onLogoutMobile}
                     className="block w-full text-center mt-4 bg-transparent text-white border-2 border-zinc-400 hover:border-zinc-700 hover:cursor-pointer text-white px-4 py-2 rounded-md text-base font-medium"

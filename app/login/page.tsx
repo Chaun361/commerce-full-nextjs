@@ -2,8 +2,8 @@
 
 import { useState, ChangeEvent, FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAppDispatch, } from "@/lib/store";
-import { login } from "@/lib/features/auth/authSlice";
+import { login } from "@/lib/actions/Login";
+import UseAuth from "@/hooks/UseAuth";
 
 const LoginPage = () => {
     const router = useRouter();
@@ -14,7 +14,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const dispatch = useAppDispatch()
+    const { setAuth } = UseAuth();
 
     const onEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
       setEmail(e.target.value);
@@ -28,11 +28,12 @@ const LoginPage = () => {
     const onLogin = async (e: FormEvent) => {
       e.preventDefault();
       try {
-        await dispatch(login({email: email, password: password})).unwrap();
+        const response = await login({email: email, password: password});
+        setAuth({userId: response.userId});
         router.push(redirectPath);
       }
       catch (error: any) {
-        setError(error.error);
+        setError(error.message);
       }
     }
     

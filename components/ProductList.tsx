@@ -1,34 +1,19 @@
 "use client";
 
-import { useAppDispatch } from '@/lib/store';
-import { useSelector } from 'react-redux'
-import { selectAllProducts, fetchProducts, getProductsStatus, getProductsError } from '../lib/features/products/productsSlicer';
-import { useEffect } from 'react';
 import ProductCard from './ProductCard';
+import useProducts from '@/hooks/useProducts';
 
 
 const ProductList = () => {
-    const products = useSelector(selectAllProducts);
-    const productsStatus = useSelector(getProductsStatus);
-    const productError = useSelector(getProductsError);
-    const dispatch = useAppDispatch();
-
-    useEffect(() => {
-        if (productsStatus === 'idle') {
-            dispatch(fetchProducts());
-        }
-    }, [dispatch, productsStatus]);
+    const {products} = useProducts();
 
     let content;
-    if (productsStatus === 'loading') {
-        content = <p>loading...</p>
+    if (!products) {
+        content = <p>Failed to load products</p>
     }
-    else if (productsStatus === 'succeeded') {
+    else {
         content = products.map(product => <ProductCard product={product} key={product.slug}></ProductCard>);
     }
-    else if (productsStatus === 'failed') {
-        content = <p>{productError}</p>
-  }
 
   const categories = ["All", "Apple", "Headphone", "Laptop"];
 
